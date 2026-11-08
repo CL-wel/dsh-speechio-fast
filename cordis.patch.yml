@@ -1,0 +1,42 @@
+# dsh-plugin-speechio-fast 的组合包层（bundle patch）。
+#
+# 本文件把语音输入所需的三个插件挂进 DSH 配置树：
+#   1. speech-to-text 服务：按名字路由到识别 Provider
+#   2. api-speech-to-text：把语音服务暴露给浏览器（ctx.remote.speech）
+#   3. 本包（dsh-plugin-speechio-fast）：注册 qwen3-asr-local 系列 Provider，
+#      同时提供浏览器半侧（麦克风按钮 + 实时转写 + 插件页 CPU/GPU 开关）
+#
+# 注意：本包自带浏览器半侧，因此不再启用官方
+# @deepseek-ai/dsh-experimental-client-ui-voice-input，否则会出现第二个麦克风
+# 按钮，并且它也会注册 speechToText 服务的浏览器 Remote。
+# 也不要在同一组合里启用官方 voice-input-bundle。
+
+- insert:
+    - id: speechio-stt
+      name: '@deepseek-ai/dsh-experimental-speech-to-text'
+      config:
+        defaultProvider: qwen3-asr-local
+
+    - id: speechio-api
+      name: '@deepseek-ai/dsh-experimental-api-speech-to-text'
+
+    # 浏览器半侧挂在这一行上，所以放在 api 之后：客户端加载时
+    # ctx.remote.speech 已经可用，Provider 也已由 Host 半侧注册。
+    - id: speechio-provider
+      name: 'dsh-plugin-speechio-fast'
+      config:
+        # 程序与模型解耦：模型与 llama.cpp 都不随本包发布。
+        # 默认读取 <DSH_HOME>/speechio（通常是 ~/.dsh/speechio），
+        # 先运行 scripts/setup.ps1 下载，或改成自己的目录：
+        #   asrRoot: 'D:\models\speechio'
+        # 也可以完全显式地指向已有安装：
+        #   llamaServer: 'D:\llama.cpp\llama-server.exe'
+        #   model: 'D:\models\Qwen3-ASR-0.6B-Q8_0.gguf'
+        #   mmproj: 'D:\models\mmproj-Qwen3-ASR-0.6B-Q8_0.gguf'
+        port: 10012
+        # auto：优先 Vulkan，起不来自动回落 CPU；也可写 vulkan / cpu。
+        # 插件页的 CPU/GPU 开关会覆盖这里的选择（持久化在 speechio-stt 条目）。
+        backend: auto
+        autoStart: true
+        threads: 8
+        contextSize: 2048

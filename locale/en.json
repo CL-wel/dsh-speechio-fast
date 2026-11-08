@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Voice input (streaming / GPU switch)",
+    "description": "Local Qwen3-ASR dictation with live partial transcripts and a GPU (Vulkan) / CPU switch on the plugin page.",
+    "detail": "README.md"
+  }
+}

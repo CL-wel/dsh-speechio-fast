@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "语音输入（流式 / GPU 可切换）",
+    "description": "本机 Qwen3-ASR 边说边转写，支持在插件页切换 GPU（Vulkan）与 CPU。",
+    "detail": "README.zh.md"
+  }
+}
