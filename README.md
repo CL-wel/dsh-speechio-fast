@@ -134,6 +134,12 @@ Open **Plugins → Installed plugins → dsh-plugin-speechio-fast** and choose u
 | GPU (Vulkan) | `qwen3-asr-local-gpu` | Vulkan `llama-server.exe` only |
 | CPU | `qwen3-asr-local-cpu` | CPU `llama-server.exe` only |
 
+**Before switching:**
+
+- GPU uses Vulkan, **not CUDA**; it needs a working Vulkan driver and `llama.cpp/vulkan/llama-server.exe`. CPU needs `llama.cpp/cpu/llama-server.exe` and works without a discrete GPU.
+- Both backends share the same `ASR/*.gguf` files; `setup.ps1` installs both by default. If you installed only CPU, run `setup.ps1 -Backend vulkan` (or `-Backend both`) first.
+- With both runtimes installed, switch directly; a missing runtime reports an error.
+
 - The choice is written to `speechio-stt.defaultProvider` and survives a restart.
 - Switching stops/restarts a server started by this plugin; the next recognition uses it.
 - A manually started server is left alone and only logged; with explicit `llamaServer`, use `ngl` instead.

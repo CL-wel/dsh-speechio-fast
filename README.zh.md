@@ -134,6 +134,12 @@ mmproj-Qwen3-ASR-0.6B-Q8_0.gguf
 | GPU（Vulkan） | `qwen3-asr-local-gpu` | 只用 Vulkan 版 `llama-server.exe` |
 | CPU | `qwen3-asr-local-cpu` | 只用 CPU 版 `llama-server.exe` |
 
+**切换前提：**
+
+- GPU 走 Vulkan，**不需要 CUDA**；需要可用的 Vulkan 驱动和 `llama.cpp/vulkan/llama-server.exe`。CPU 需要 `llama.cpp/cpu/llama-server.exe`，无独显也能用。
+- 两种后端共用同一份 `ASR/*.gguf`；`setup.ps1` 默认装两套。只装过 CPU 时，切 GPU 前先运行 `setup.ps1 -Backend vulkan`（或 `-Backend both`）。
+- 两套运行时都在时可直接切换；缺少对应运行时会明确报错。
+
 - 选择写入 `speechio-stt` 的 `defaultProvider`，重启 DSH 后保留。
 - 切换会停止/重启本插件拉起的服务，下一次识别生效。
 - 手动启动的外部服务不会被打断，只在日志中提示；显式 `llamaServer` 模式用 `ngl` 控制。
