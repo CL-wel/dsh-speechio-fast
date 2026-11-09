@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-speechio-fast",
-  "version": "0.3.0",
-  "description": "本机语音输入：在 DSH 输入框模型选择器与发送按钮之间加一个麦克风按钮，用本地 Qwen3-ASR（llama.cpp）边说边转写，停止后把整段文字插入草稿。支持 GPU（Vulkan）/ CPU 切换。程序与模型解耦，模型需自行下载。",
+  "version": "0.3.1",
+  "description": "本机语音输入：在 DSH 输入框模型选择器与发送按钮之间加一个麦克风按钮，用本地 Qwen3-ASR（llama.cpp）把说的话按句直接写进消息输入框。支持 GPU（Vulkan）/ CPU 切换。程序与模型解耦，模型需自行下载。",
   "keywords": [
     "dsh",
     "dsh-plugin",

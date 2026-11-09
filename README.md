@@ -1,12 +1,12 @@
 # dsh-plugin-speechio-fast
 
-Local voice input for DeepSeek Harness. Click the microphone, speak, and see the transcript stream into the recording bar; stop and the finished text is inserted into the draft. Recognition runs through **Qwen3-ASR-0.6B + llama.cpp** on your machine. No Python, no cloud, no audio leaves the host.
+Local voice input for DeepSeek Harness. Click the microphone, speak, and each finalized sentence is **written straight into the message composer**; stop finishes the last sentence. Recognition runs through **Qwen3-ASR-0.6B + llama.cpp** on your machine. No Python, no cloud, no audio leaves the host.
 
 ```
 [ model selector ]  [ 🎤 ]  [ ↑ send ]
 ```
 
-- **Live transcript**: the current sentence previews as you speak and is finalized on a pause.
+- **Direct composer output**: after each pause the sentence is inserted at the caret; there is no separate draft preview box.
 - **CPU/GPU switch**: Auto / GPU (Vulkan) / CPU on the plugin page; the choice persists.
 - **Local runtime**: auto-starts `llama-server`, guards silent audio, and splits long speech.
 - **Native placement**: uses DSH's `conversation.input.activity` slot and microphone icon.
@@ -89,7 +89,7 @@ Use **Plugins → local install** and select this repository. It adds three rows
 | --- | --- |
 | `speechio-stt` | DSH `speechToText` service, default provider `qwen3-asr-local` |
 | `speechio-api` | exposes the speech service to the browser (`ctx.remote.speech`) |
-| `speechio-provider` | this plugin: Auto / GPU / CPU providers, microphone, live transcript, plugin-page setting |
+| `speechio-provider` | this plugin: Auto / GPU / CPU providers, microphone, direct composer output, plugin-page setting |
 
 Do not also enable `@deepseek-ai/dsh-experimental-client-ui-voice-input` or `@deepseek-ai/dsh-experimental-voice-input-bundle`; they add a second microphone or duplicate `speechToText`.
 
@@ -161,7 +161,7 @@ These figures are conservative: the benchmark includes segmentation, HTTP, and m
 - Vulkan RTF≈0.02–0.03; CPU≈0.16–0.27.
 - A 5–10 s sentence takes about 0.2 s on Vulkan / 2 s on CPU; 30 s takes about 0.8 s / 5 s.
 - Long speech is split automatically.
-- Live preview adds inference work; nearly free on GPU, noticeable on CPU.
+- Only finalized segments are sent now; preview requests are gone. The numbers above are one finalized transcription each.
 
 ### Resources
 
@@ -198,19 +198,19 @@ node scripts\bench.mjs `
 ## Usage
 
 1. Open a session and click the microphone; allow access on first use.
-2. Speak: the current sentence previews live and is finalized on a pause.
-3. Click the square stop button; the finished transcript is inserted into the draft.
-4. If the draft changed, the text stays in the recording bar with **Insert**; ✕ or Esc cancels.
+2. Speak: each sentence is finalized on a pause and inserted at the caret in the message composer.
+3. Click the square stop button; the last sentence is finished and all text is already in the composer, ready to edit or send.
+4. If the composer was empty, ✕ or Esc removes the text inserted during this recording. If it had content or you edited it, cancelling keeps the transcribed text and shows a notice.
 
-Live preview updates by sentence, not word by word; CPU preview is slower. Provisional text is not inserted.
+Output is sentence-by-sentence, not word by word; CPU has longer gaps. Preview requests are gone, so only finalized segments cost inference time.
 
 ## Stability
 
 - Health check before every recognition; start an owned `llama-server.exe` when needed, waiting up to 90 s.
 - `auto` tries Vulkan and falls back to CPU; an explicit GPU choice reports failure.
 - Switching backends restarts only the server owned by this plugin.
-- Recognition requests are serialized; a preview request is cancelled when its sentence is finalized.
-- Silence guard: no speech energy means no model call; silent previews are ignored.
+- Recognition requests run one at a time; finished sentences are inserted in order.
+- Silence guard: no speech energy means no model call; silent segments produce no text.
 - Cancel aborts the wait and HTTP request; only plugin-owned processes are stopped.
 
 ## Troubleshooting
